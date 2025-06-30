@@ -11,7 +11,7 @@ import { request } from '@/utils'
 export default {
   create: data => request.post('/api/admin/user/create', data),
   read: (params = {}) => request.post('/api/admin/user/page', params),
-  update: data => request.post(`/api/admin/user/update_mine`, data),
+  update: data => request.post(`/api/admin/user/update`, data),
   delete: id => request.delete(`/user/${id}`),
   resetPwd: data => request.post(`/api/admin/user/update_password`, data),
 

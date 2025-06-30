@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', {
       return this.userInfo?.username
     },
     nickName() {
-      return this.userInfo?.nickName
+      return this.userInfo?.nickname
     },
     avatar() {
       return this.userInfo?.avatar

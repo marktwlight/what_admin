@@ -10,11 +10,11 @@
   <AppPage show-footer>
     <n-card>
       <n-space align="center">
-        <n-avatar round :size="100" :src="userStore.avatar" />
+        <n-avatar round :size="100" :src="userInfo.avatar" />
         <div class="ml-20">
           <div class="flex items-center text-16">
             <span>用户名:</span>
-            <span class="ml-12 opacity-80">{{ userStore.username }}</span>
+            <span class="ml-12 opacity-80">{{ userInfo.username }}</span>
             <n-button class="ml-32" type="primary" text @click="pwdModalRef.open()">
               <i class="i-fe:edit mr-4" />
               修改密码
@@ -47,22 +47,22 @@
         bordered
       >
         <n-descriptions-item label="昵称">
-          {{ userStore.nickName }}
+          {{ userInfo.nickname }}
         </n-descriptions-item>
         <n-descriptions-item label="性别">
-          {{ genders.find((item) => item.value === userStore.userInfo?.gender)?.label ?? '未知' }}
+          {{ genders.find((item) => item.value === userInfo?.gender)?.label ?? '未知' }}
         </n-descriptions-item>
-        <n-descriptions-item label="地址">
-          {{ userStore.userInfo?.address }}
+        <n-descriptions-item label="电话">
+          {{ userInfo?.phone }}
         </n-descriptions-item>
         <n-descriptions-item label="邮箱">
-          {{ userStore.userInfo?.email }}
+          {{ userInfo?.email }}
         </n-descriptions-item>
       </n-descriptions>
     </n-card>
 
-    <MeModal ref="avatarModalRef" width="420px" title="更改头像" @ok="handleAvatarSave()">
-      <n-input v-model:value="newAvatar" />
+    <MeModal ref="avatarModalRef" width="420px" title="更改头像" @ok="handleProfileSave()">
+      <n-input v-model:value="profileForm.avatar" placeholder="头像链接" />
     </MeModal>
 
     <MeModal ref="pwdModalRef" title="修改密码" width="420px" @ok="handlePwdSave()">
@@ -83,8 +83,8 @@
 
     <MeModal ref="profileModalRef" title="修改资料" width="420px" @ok="handleProfileSave()">
       <n-form ref="profileFormRef" :model="profileForm" label-placement="left">
-        <n-form-item label="昵称" path="nickName">
-          <n-input v-model:value="profileForm.nickName" placeholder="请输入昵称" />
+        <n-form-item label="昵称" path="nickname">
+          <n-input v-model:value="profileForm.nickname" placeholder="请输入昵称" />
         </n-form-item>
         <n-form-item label="性别" path="gender">
           <n-select
@@ -93,8 +93,8 @@
             placeholder="请选择性别"
           />
         </n-form-item>
-        <n-form-item label="地址" path="address">
-          <n-input v-model:value="profileForm.address" placeholder="请输入地址" />
+        <n-form-item label="号码" path="phone">
+          <n-input v-model:value="profileForm.phone" placeholder="请输入号码" />
         </n-form-item>
         <n-form-item label="邮箱" path="email">
           <n-input v-model:value="profileForm.email" placeholder="请输入邮箱" />
@@ -105,6 +105,7 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
 import { MeModal } from '@/components'
 import { useForm, useModal } from '@/composables'
 import { useUserStore } from '@/store'
@@ -127,41 +128,32 @@ async function handlePwdSave() {
   $message.success('密码修改成功')
   refreshUserInfo()
 }
+const userInfo = ref(JSON.parse(localStorage.getItem('userInfo')))
 
 const newAvatar = ref(userStore.avatar)
 const [avatarModalRef] = useModal()
-async function handleAvatarSave() {
-  if (!newAvatar.value) {
-    $message.error('请输入头像地址')
-    return false
-  }
-  await api.updateProfile({ id: userStore.userId, avatar: newAvatar.value })
-  $message.success('头像修改成功')
-  refreshUserInfo()
-}
-
 const genders = [
-  { label: '保密', value: 0 },
   { label: '男', value: 1 },
   { label: '女', value: 2 },
 ]
+
 const [profileModalRef] = useModal()
 const [profileFormRef, profileForm, profileValidation] = useForm({
-  id: userStore.userId,
-  nickName: userStore.nickName,
-  gender: userStore.userInfo?.gender ?? 0,
-  address: userStore.userInfo?.address,
-  email: userStore.userInfo?.email,
+  nickname: userInfo.value.nickname,
+  gender: userInfo.value.gender,
+  email: userInfo.value.email,
+  phone: userInfo.value.phone,
+  avatar: userInfo.value.avatar,
 })
 async function handleProfileSave() {
   await profileValidation()
+  localStorage.setItem('userInfo', JSON.stringify(profileForm.value))
   await api.updateProfile(profileForm.value)
   $message.success('资料修改成功')
   refreshUserInfo()
 }
 
 async function refreshUserInfo() {
-  const user = await getUserInfo()
-  userStore.setUser(user)
+  userInfo.value = JSON.parse(localStorage.getItem('userInfo'))
 }
 </script>

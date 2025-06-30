@@ -47,19 +47,20 @@
         <n-form-item
           label="角色名"
           path="name"
+
           :rule="{
             required: true,
             message: '请输入角色名',
             trigger: ['input', 'blur'],
           }"
         >
-          <n-input v-model:value="modalForm.name" />
+          <n-input v-model:value="modalForm.name" :disabled="modalAction !== 'add'" />
         </n-form-item>
         <n-form-item
           label="描述"
           path="desc"
         >
-          <n-input v-model:value="modalForm.desc" :disabled="modalAction !== 'add'" />
+          <n-input v-model:value="modalForm.desc" />
         </n-form-item>
         <n-form-item label="权限" path="menuIds">
           <n-tree

@@ -186,9 +186,10 @@ async function handleLogin() {
 }
 
 async function onLoginSuccess(data = {}) {
-  const { menuIds, token, nickname, role, username } = data
+  const { menuIds, token, nickname, role, username, avatar, gender, email, phone } = data
   authStore.setToken(token)
-  const userInfo = { menuIds, role, username, nickname }
+  const userInfo = { username, nickname, avatar, gender, email, phone }
+  localStorage.setItem('userInfo', JSON.stringify(userInfo))
   const { setUser } = useUserStore()
   setUser(userInfo)
   usePermissionStore().menus = menuIds

@@ -55,7 +55,7 @@
         :disabled="modalAction === 'view'"
       >
         <n-form-item
-          v-if="['add','edit'].includes(modalAction)"
+          v-if="['add', 'edit'].includes(modalAction)"
           label="用户名"
           path="username"
           :rule="{
@@ -78,30 +78,7 @@
         >
           <n-input v-model:value="modalForm.password" type="password" show-password-on="mousedown" />
         </n-form-item>
-        <n-form-item
-          v-if="['reset'].includes(modalAction)"
-          label="旧密码"
-          path="oldPassword"
-          :rule="{
-            required: true,
-            message: '请输入密码',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.oldPassword" type="password" show-password-on="mousedown" />
-        </n-form-item>
-        <n-form-item
-          v-if="['reset'].includes(modalAction)"
-          label="新密码"
-          path="newPassword"
-          :rule="{
-            required: true,
-            message: '请输入密码',
-            trigger: ['input', 'blur'],
-          }"
-        >
-          <n-input v-model:value="modalForm.newPassword" type="password" show-password-on="mousedown" />
-        </n-form-item>
+
         <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="角色" path="role">
           <n-select
             v-model:value="modalForm.role"
@@ -112,8 +89,31 @@
             filterable
           />
         </n-form-item>
-        <!-- <n-form-item v-if="modalAction === 'add'" label="状态" path="status">
-          <NSwitch v-model:value="modalForm.status">
+        <n-form-item v-if="['edit'].includes(modalAction)" label="是否修改密码" path="upPwd">
+          <NSwitch v-model:value="modalForm.upPwd" />
+        </n-form-item>
+        <n-form-item
+          v-if="['edit'].includes(modalAction)"
+
+          label="新密码"
+          path="password"
+          :rule="modalForm.upPwd ? [
+            {
+              required: true,
+              message: '请输入密码',
+              trigger: ['input', 'blur'],
+            },
+            {
+              min: 6,
+              message: '密码长度不能少于6位',
+              trigger: ['input', 'blur'],
+            },
+          ] : []"
+        >
+          <n-input v-model:value="modalForm.password" :disabled="!modalForm.upPwd" type="password" show-password-on="mousedown" />
+        </n-form-item>
+        <n-form-item v-if="['add', 'edit'].includes(modalAction)" label="状态" path="status">
+          <NSwitch v-model:value="modalForm.status" :checked-value="1" :unchecked-value="2">
             <template #checked>
               启用
             </template>
@@ -121,7 +121,7 @@
               停用
             </template>
           </NSwitch>
-        </n-form-item> -->
+        </n-form-item>
       </n-form>
       <n-alert v-if="modalAction === 'add'" type="warning" closable>
         详细信息需由用户本人补充修改
@@ -260,19 +260,19 @@ const columns = [
             icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
           },
         ),
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleOpen({ action: 'reset', title: '修改密码', row, onOk: onSave }),
-          },
-          {
-            default: () => '修改密码',
-            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),
-          },
-        ),
+        // h(
+        //   NButton,
+        //   {
+        //     size: 'small',
+        //     type: 'primary',
+        //     style: 'margin-left: 12px;',
+        //     onClick: () => handleOpen({ action: 'reset', title: '修改密码', row, onOk: onSave }),
+        //   },
+        //   {
+        //     default: () => '修改密码',
+        //     icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),
+        //   },
+        // ),
 
         h(
           NButton,
