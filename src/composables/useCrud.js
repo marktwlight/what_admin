@@ -93,10 +93,11 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, doU
 
     try {
       okLoading.value = true
-      const data = await action.api()
+      await action.api()
       action.cb()
       okLoading.value = false
-      data && refresh(data)
+
+      refresh()
     }
     catch (error) {
       console.error(error)
