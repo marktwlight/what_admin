@@ -216,7 +216,6 @@ const columns = [
           size: 'small',
           rubberBand: false,
           value: row.status === 1,
-          disabled: row.status === 2, // 当状态为禁用时禁用开关
           loading: !!row.enableLoading,
           onUpdateValue: () => handleEnable(row),
         },
@@ -293,9 +292,10 @@ const columns = [
 ]
 
 async function handleEnable(row) {
+  row.status === 1 ? row.status = 2 : row.status = 1
   row.enableLoading = true
   try {
-    await api.update({ id: row.id, status: !row.status })
+    await api.changeStatus({ id: row.id, status: row.status })
     row.enableLoading = false
     $message.success('操作成功')
     $table.value?.handleSearch()
@@ -323,6 +323,7 @@ function handleEdit(item = {}) {
     row: item,
     okText: '保存',
   })
+  $table.value?.handleSearch()
 }
 function onSave() {
   if (modalAction.value === 'setRole') {

@@ -13,7 +13,8 @@ export default {
   read: (params = {}) => request.post('/api/admin/user/page', params),
   update: data => request.post(`/api/admin/user/update`, data),
   delete: id => request.delete(`/user/${id}`),
-  resetPwd: data => request.post(`/api/admin/user/update_password`, data),
+
+  changeStatus: data => request.post(`/api/admin/user/change_status`, data),
 
   getAllRoles: () => request.get('/api/admin/role/all'),
 }

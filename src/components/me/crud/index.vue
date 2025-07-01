@@ -80,7 +80,7 @@ const props = defineProps({
   },
   rowKey: {
     type: String,
-    default: 'id',
+    default: 'name',
   },
   columns: {
     type: Array,

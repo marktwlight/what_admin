@@ -15,7 +15,7 @@ const ACTIONS = {
   add: '新增',
 }
 
-export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, refresh }) {
+export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, doUpload, refresh }) {
   const modalAction = ref('')
   const [modalRef, okLoading] = useModal()
   const [modalFormRef, modalForm, validation] = useForm(initForm)
@@ -28,6 +28,11 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
   /** 修改 */
   function handleEdit(row, title) {
     handleOpen({ action: 'edit', title, row })
+  }
+
+  /** 上传 */
+  function handleUpload(row, title) {
+    handleOpen({ action: 'upload', title, row })
   }
 
   /** 查看 */
@@ -56,10 +61,18 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
 
   /** 保存 */
   async function handleSave(action) {
-    if (!action && !['edit', 'add'].includes(modalAction.value)) {
+    await validation()
+    if (!action && !['edit', 'add', 'upload'].includes(modalAction.value)) {
       return false
     }
-    await validation()
+
+    const formData = new FormData()
+    if (['upload'].includes(modalAction.value)) {
+      Object.entries(modalForm.value).forEach(([key, value]) => {
+        formData.append(key, value) // 添加自定义数据
+      })
+    }
+
     const actions = {
       add: {
         api: () => doCreate(modalForm.value),
@@ -68,6 +81,11 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
       edit: {
         api: () => doUpdate(modalForm.value),
         cb: () => $message.success('保存成功'),
+      },
+      upload: {
+
+        api: () => doUpload(formData),
+        cb: () => $message.success('上传成功'),
       },
     }
 
@@ -88,8 +106,8 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
   }
 
   /** 删除 */
-  function handleDelete(id, confirmOptions) {
-    if (!id && id !== 0)
+  function handleDelete(params, confirmOptions) {
+    if (!params)
       return
     const d = $dialog.warning({
       content: '确定删除？',
@@ -99,7 +117,7 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
       async onPositiveClick() {
         try {
           d.loading = true
-          const data = await doDelete(id)
+          const data = await doDelete(params)
           $message.success('删除成功')
           d.loading = false
           refresh(data, true)
@@ -121,6 +139,7 @@ export function useCrud({ name, initForm = {}, doCreate, doDelete, doUpdate, ref
     okLoading,
     validation,
     handleAdd,
+    handleUpload,
     handleDelete,
     handleEdit,
     handleView,
